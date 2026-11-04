@@ -1,0 +1,158 @@
+/* ==========================================================================
+   SpatialLab Design System — Academic White / Scientific Laboratory Theme
+   ========================================================================== */
+
+:root {
+  /* Crisp academic paper & laboratory backgrounds */
+  --bg-base: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-glass: rgba(255, 255, 255, 0.94);
+  --bg-card: #ffffff;
+  --bg-card-glass: rgba(255, 255, 255, 0.90);
+  --bg-card-hover: #f8fafc;
+  --bg-active: #f1f5f9;
+
+  /* Subtle academic structural borders */
+  --border-subtle: #e2e8f0;
+  --border-card: #cbd5e1;
+  --border-active: #2563eb;
+
+  /* High-contrast scholarly typography */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+
+  /* Low Pass Theme: Scholarly Technical Cyan / Ocean Blue */
+  --low-pass-primary: #0284c7;
+  --low-pass-hover: #0369a1;
+  --low-pass-glow: rgba(2, 132, 199, 0.16);
+  --low-pass-bg: #eff6ff;
+
+  /* High Pass Theme: Scholarly Royal Indigo / Deep Violet */
+  --high-pass-primary: #4f46e5;
+  --high-pass-hover: #4338ca;
+  --high-pass-glow: rgba(79, 70, 229, 0.16);
+  --high-pass-bg: #eef2ff;
+
+  /* Custom & Utility Colors */
+  --custom-primary: #d97706;
+  --custom-glow: rgba(217, 119, 6, 0.16);
+  --emerald-accent: #059669;
+  --rose-accent: #e11d48;
+
+  /* Typography */
+  --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Elevation & Shadows: Clean, soft, diffused academic elevation */
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-glow: 0 0 15px rgba(37, 99, 235, 0.15);
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  min-height: 100%;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  /* Academic technical grid pattern on subtle ivory/slate parchment */
+  background-image: 
+    radial-gradient(#cbd5e1 1.1px, transparent 1.1px),
+    radial-gradient(circle at 10% 10%, rgba(2, 132, 199, 0.035) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(79, 70, 229, 0.035) 0%, transparent 40%);
+  background-size: 24px 24px, 100% 100%, 100% 100%;
+  background-attachment: fixed;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Range input modern academic styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 4px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 2px solid #ffffff;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  background: #1d4ed8;
+}
+
+/* Common utility classes */
+.glass-panel {
+  background: var(--bg-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Button Reset */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
