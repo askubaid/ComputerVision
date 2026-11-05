@@ -431,7 +431,7 @@
 .high-pass-dot { background: #6366f1; }
 .custom-dot { background: #d97706; }
 .edge-dot { background: #059669; }
-.corner-dot { background: #e11d48; }
+.corner-dot { background: #059669; }
 
 .custom-kernel-select-card {
   border-style: dashed;
@@ -492,16 +492,11 @@
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.12);
 }
 
-.filter-item-card.selected.edge_detection {
+.filter-item-card.selected.edge_detection,
+.filter-item-card.selected.corner_detection {
   background: #ecfdf5;
   border-color: #059669;
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.12);
-}
-
-.filter-item-card.selected.corner_detection {
-  background: #fff1f2;
-  border-color: #e11d48;
-  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.12);
 }
 
 .filter-item-card.selected.custom-kernel-select-card {
@@ -529,12 +524,9 @@
   color: #4f46e5;
 }
 
-.filter-item-card.selected.edge_detection .card-icon-wrap {
-  color: #059669;
-}
-
+.filter-item-card.selected.edge_detection .card-icon-wrap,
 .filter-item-card.selected.corner_detection .card-icon-wrap {
-  color: #e11d48;
+  color: #059669;
 }
 
 .card-badge {
@@ -559,16 +551,11 @@
   border-color: rgba(79, 70, 229, 0.2);
 }
 
-.filter-item-card.selected.edge_detection .card-badge {
+.filter-item-card.selected.edge_detection .card-badge,
+.filter-item-card.selected.corner_detection .card-badge {
   background: #d1fae5;
   color: #059669;
   border-color: rgba(5, 150, 105, 0.2);
-}
-
-.filter-item-card.selected.corner_detection .card-badge {
-  background: #ffe4e6;
-  color: #e11d48;
-  border-color: rgba(225, 29, 72, 0.2);
 }
 
 /* Corner Detection Controls Styling */
