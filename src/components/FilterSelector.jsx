@@ -1,20 +1,15 @@
 import React from 'react';
 import { 
   Waves, 
-  Zap, 
   Edit3, 
   Sparkles, 
-  Grid3X3, 
   Scan, 
   Compass, 
-  TrendingUp, 
   BoxSelect,
   Layers,
   Activity,
   Crosshair,
-  SlidersHorizontal,
-  Target,
-  Spline
+  SlidersHorizontal
 } from 'lucide-react';
 import { STUDIO_TABS, FILTER_CATEGORIES, FILTER_PRESETS } from '../utils/filterPresets';
 
@@ -23,13 +18,8 @@ const FILTER_ICONS = {
   gaussian_blur: Waves,
   weighted_average: Layers,
   median_filter: Sparkles,
-  laplacian_4: Scan,
-  laplacian_8: Grid3X3,
-  laplacian_sharpen: Zap,
-  high_boost: TrendingUp,
   prewitt_gradient: Compass,
   sobel_gradient: Activity,
-  canny_edge: Spline,
   harris_corner: Crosshair
 };
 
@@ -42,7 +32,6 @@ export function FilterSelector({
   onSelectCustom
 }) {
   const lowPassFilters = FILTER_PRESETS.filter(f => f.category === FILTER_CATEGORIES.LOW_PASS);
-  const highPassFilters = FILTER_PRESETS.filter(f => f.category === FILTER_CATEGORIES.HIGH_PASS);
   const edgeFilters = FILTER_PRESETS.filter(f => f.tab === STUDIO_TABS.EDGE_DETECTION);
   const cornerFilters = FILTER_PRESETS.filter(f => f.tab === STUDIO_TABS.CORNER_DETECTION);
 
@@ -71,8 +60,6 @@ export function FilterSelector({
           <span className="kernel-size-indicator mono">
             {filter.kernelType === 'median' 
               ? 'Rank Order' 
-              : filter.kernelType === 'canny'
-              ? 'Multi-Stage'
               : filter.kernelType === 'harris'
               ? 'Structure Tensor'
               : `${filter.defaultKernelSize}×${filter.defaultKernelSize}`}
@@ -92,11 +79,11 @@ export function FilterSelector({
           className={`cat-tab ${activeTab === STUDIO_TABS.FILTERS ? 'active' : ''}`}
           onClick={() => {
             onTabChange(STUDIO_TABS.FILTERS);
-            if (!isCustomActive && !lowPassFilters.concat(highPassFilters).some(f => f.id === selectedFilterId)) {
+            if (!isCustomActive && !lowPassFilters.some(f => f.id === selectedFilterId)) {
               onSelectFilter(lowPassFilters[0].id);
             }
           }}
-          title="Spatial Domain Smoothing, Sharpening and Custom Filters"
+          title="Low-Pass Smoothing and Custom Convolution Filters"
         >
           <SlidersHorizontal size={15} />
           <span>Filters</span>
@@ -111,7 +98,7 @@ export function FilterSelector({
               onSelectFilter(edgeFilters[0].id);
             }
           }}
-          title="Edge Detection Operators (Prewitt, Sobel, Canny)"
+          title="Edge Detection Operators (Prewitt, Sobel)"
         >
           <Scan size={15} />
           <span>Edge Detection</span>
@@ -134,7 +121,7 @@ export function FilterSelector({
         </button>
       </div>
 
-      {/* Tab 1 Content: Filters in 3 Sections (Low-pass, High-pass, Custom) */}
+      {/* Tab 1 Content: Low-Pass and Custom Kernel */}
       {activeTab === STUDIO_TABS.FILTERS && (
         <div className="tab-filters-sections">
           {/* Section 1: Low-Pass */}
@@ -148,22 +135,11 @@ export function FilterSelector({
             </div>
           </div>
 
-          {/* Section 2: High-Pass */}
-          <div className="filter-section-group">
-            <div className="section-label-header">
-              <span className="section-dot high-pass-dot"></span>
-              <span className="section-title">2. High-Pass Filters (Sharpening &amp; Details)</span>
-            </div>
-            <div className="filter-cards-grid">
-              {highPassFilters.map(renderFilterCard)}
-            </div>
-          </div>
-
-          {/* Section 3: Custom Kernel */}
+          {/* Section 2: Custom Kernel */}
           <div className="filter-section-group">
             <div className="section-label-header">
               <span className="section-dot custom-dot"></span>
-              <span className="section-title">3. Custom Convolution Kernel</span>
+              <span className="section-title">2. Custom Convolution Kernel</span>
             </div>
             <div 
               className={`filter-item-card custom-kernel-select-card ${isCustomActive ? 'selected' : ''}`}
@@ -188,12 +164,12 @@ export function FilterSelector({
         </div>
       )}
 
-      {/* Tab 2 Content: Edge Detection */}
+      {/* Tab 2 Content: Edge Detection (Prewitt and Sobel) */}
       {activeTab === STUDIO_TABS.EDGE_DETECTION && (
         <div className="tab-edge-section">
           <div className="section-label-header">
             <span className="section-dot edge-dot"></span>
-            <span className="section-title">Differential &amp; Optimal Edge Detectors</span>
+            <span className="section-title">Gradient Edge Detectors (Prewitt, Sobel)</span>
           </div>
           <div className="filter-cards-grid">
             {edgeFilters.map(renderFilterCard)}

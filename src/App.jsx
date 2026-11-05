@@ -18,10 +18,8 @@ import {
   applyConvolution, 
   applyMedianFilter, 
   applyGradientFilter, 
-  applyHighBoostFilter, 
   generateGaussianKernel, 
   generateBoxBlurKernel,
-  applyCannyEdgeDetector,
   applyHarrisCornerDetector
 } from './utils/filterEngine';
 
@@ -39,12 +37,6 @@ export function App() {
     sigma: 1.2,
     gradientMode: 'magnitude',
     gain: 1.0,
-    boostK: 1.8,
-    // Canny edge parameters
-    cannyLow: 30,
-    cannyHigh: 80,
-    cannySigma: 1.2,
-    cannyInvert: false,
     // Harris corner parameters
     harrisK: 0.04,
     harrisSensitivity: 35,
@@ -134,11 +126,6 @@ export function App() {
       sigma: 1.2,
       gradientMode: 'magnitude',
       gain: 1.0,
-      boostK: 1.8,
-      cannyLow: 30,
-      cannyHigh: 80,
-      cannySigma: 1.2,
-      cannyInvert: false,
       harrisK: 0.04,
       harrisSensitivity: 35,
       harrisStyle: 'target',
@@ -167,18 +154,6 @@ export function App() {
     if (activeFilter.kernelType === 'box') {
       const { kernel, divisor } = generateBoxBlurKernel(filterParams.kernelSize);
       return { kernel, divisor, bias: 0 };
-    }
-
-    if (activeFilter.kernelType === 'high_boost') {
-      const k = filterParams.boostK;
-      const center = Number((1 + 4 * k * 0.2).toFixed(2));
-      const cross = Number((-k * 0.2).toFixed(2));
-      const hbKernel = [
-        [0, cross, 0],
-        [cross, center, cross],
-        [0, cross, 0]
-      ];
-      return { kernel: hbKernel, divisor: 1, bias: 0 };
     }
 
     return { 
@@ -211,14 +186,6 @@ export function App() {
         customBias, 
         true
       );
-    } else if (activeFilter.kernelType === 'canny') {
-      result = applyCannyEdgeDetector(
-        baseImageData,
-        filterParams.cannyLow,
-        filterParams.cannyHigh,
-        filterParams.cannySigma,
-        filterParams.cannyInvert
-      );
     } else if (activeFilter.kernelType === 'harris') {
       result = applyHarrisCornerDetector(
         baseImageData,
@@ -239,13 +206,6 @@ export function App() {
         activeFilter.kernelY,
         filterParams.gradientMode,
         filterParams.gain,
-        true
-      );
-    } else if (activeFilter.kernelType === 'high_boost') {
-      result = applyHighBoostFilter(
-        baseImageData,
-        filterParams.kernelSize,
-        filterParams.boostK,
         true
       );
     } else if (activeFilter.kernelType === 'gaussian') {
@@ -321,15 +281,6 @@ export function App() {
                 }
                 if (found.defaultSigma) {
                   setFilterParams(p => ({ ...p, sigma: found.defaultSigma }));
-                }
-                if (found.defaultBoostK) {
-                  setFilterParams(p => ({ ...p, boostK: found.defaultBoostK }));
-                }
-                if (found.defaultLowThreshold) {
-                  setFilterParams(p => ({ ...p, cannyLow: found.defaultLowThreshold }));
-                }
-                if (found.defaultHighThreshold) {
-                  setFilterParams(p => ({ ...p, cannyHigh: found.defaultHighThreshold }));
                 }
                 if (found.defaultHarrisK) {
                   setFilterParams(p => ({ ...p, harrisK: found.defaultHarrisK }));

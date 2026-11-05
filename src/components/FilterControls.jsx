@@ -18,7 +18,6 @@ export function FilterControls({
   isCustomActive,
   cornerCount = 0
 }) {
-  const isCanny = filter?.id === 'canny_edge';
   const isHarris = filter?.id === 'harris_corner';
 
   return (
@@ -27,9 +26,7 @@ export function FilterControls({
         <div className="panel-title">
           <Sliders size={16} />
           <span>
-            {isCanny 
-              ? 'Canny Edge Parameters' 
-              : isHarris 
+            {isHarris 
               ? 'Harris Corner Parameters' 
               : 'Filter Parameters'}
           </span>
@@ -37,109 +34,6 @@ export function FilterControls({
       </div>
 
       <div className="controls-grid">
-        {/* ========================================================= */}
-        {/* CANNY EDGE DETECTOR CONTROLS                              */}
-        {/* ========================================================= */}
-        {isCanny && (
-          <>
-            {/* Low Threshold (T_low) */}
-            <div className="control-item">
-              <label className="control-label">
-                <span className="label-text">Low Hysteresis Threshold (T_low)</span>
-                <span className="value-badge mono">{params.cannyLow}</span>
-              </label>
-              <input 
-                type="range" 
-                min="5" 
-                max="120" 
-                step="1" 
-                value={params.cannyLow} 
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  onParamChange('cannyLow', val);
-                  if (val >= params.cannyHigh) {
-                    onParamChange('cannyHigh', val + 5);
-                  }
-                }}
-              />
-              <div className="range-hints">
-                <span>More Edges (5)</span>
-                <span>Default (30)</span>
-                <span>Fewer Weak Edges</span>
-              </div>
-            </div>
-
-            {/* High Threshold (T_high) */}
-            <div className="control-item">
-              <label className="control-label">
-                <span className="label-text">High Hysteresis Threshold (T_high)</span>
-                <span className="value-badge mono">{params.cannyHigh}</span>
-              </label>
-              <input 
-                type="range" 
-                min="20" 
-                max="220" 
-                step="1" 
-                value={params.cannyHigh} 
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  onParamChange('cannyHigh', val);
-                  if (val <= params.cannyLow) {
-                    onParamChange('cannyLow', Math.max(5, val - 5));
-                  }
-                }}
-              />
-              <div className="range-hints">
-                <span>Permissive</span>
-                <span>Default (80)</span>
-                <span>Strict Strong Edges</span>
-              </div>
-            </div>
-
-            {/* Gaussian Pre-smoothing Sigma */}
-            <div className="control-item">
-              <label className="control-label">
-                <span className="label-text">Gaussian Pre-Filter (σ)</span>
-                <span className="value-badge mono">{Number(params.cannySigma).toFixed(1)}</span>
-              </label>
-              <input 
-                type="range" 
-                min="0.5" 
-                max="2.8" 
-                step="0.1" 
-                value={params.cannySigma} 
-                onChange={(e) => onParamChange('cannySigma', parseFloat(e.target.value))}
-              />
-              <div className="range-hints">
-                <span>Fine Details (0.5)</span>
-                <span>Balanced (1.2)</span>
-                <span>Heavy Denoising</span>
-              </div>
-            </div>
-
-            {/* Edge Color Invert Mode */}
-            <div className="control-item">
-              <label className="control-label">
-                <span className="label-text">Display Palette Mode</span>
-              </label>
-              <div className="btn-group">
-                <button
-                  className={`btn-toggle ${!params.cannyInvert ? 'active' : ''}`}
-                  onClick={() => onParamChange('cannyInvert', false)}
-                >
-                  White on Black
-                </button>
-                <button
-                  className={`btn-toggle ${params.cannyInvert ? 'active' : ''}`}
-                  onClick={() => onParamChange('cannyInvert', true)}
-                >
-                  Black on White (Ink)
-                </button>
-              </div>
-            </div>
-          </>
-        )}
-
         {/* ========================================================= */}
         {/* HARRIS CORNER DETECTOR CONTROLS                           */}
         {/* ========================================================= */}
@@ -321,7 +215,7 @@ export function FilterControls({
         {/* ========================================================= */}
         {/* STANDARD FILTER CONTROLS                                  */}
         {/* ========================================================= */}
-        {!isCanny && !isHarris && (
+        {!isHarris && (
           <>
             {/* Kernel Size Selector */}
             {filter?.supportsSizeSelection && !isCustomActive && (
@@ -412,31 +306,6 @@ export function FilterControls({
                   value={params.gain} 
                   onChange={(e) => onParamChange('gain', parseFloat(e.target.value))}
                 />
-              </div>
-            )}
-
-            {/* High-Boost Factor k */}
-            {filter?.hasBoostControl && !isCustomActive && (
-              <div className="control-item">
-                <label className="control-label">
-                  <span className="label-text">Boost Multiplier (k)</span>
-                  <span className="value-badge mono">
-                    k = {Number(params.boostK).toFixed(1)} {params.boostK === 1 ? '(Unsharp)' : '(High-Boost)'}
-                  </span>
-                </label>
-                <input 
-                  type="range" 
-                  min="0.5" 
-                  max="4.0" 
-                  step="0.1" 
-                  value={params.boostK} 
-                  onChange={(e) => onParamChange('boostK', parseFloat(e.target.value))}
-                />
-                <div className="range-hints">
-                  <span>k &lt; 1 (Mild)</span>
-                  <span>k = 1 (Standard Unsharp)</span>
-                  <span>k &gt; 1 (High-Boost)</span>
-                </div>
               </div>
             )}
           </>

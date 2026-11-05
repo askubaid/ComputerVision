@@ -3,11 +3,8 @@ import {
   X, 
   BookOpen, 
   Waves, 
-  Zap, 
   Sparkles, 
-  Cpu, 
-  HelpCircle,
-  ExternalLink
+  Cpu 
 } from 'lucide-react';
 import { MathView } from './MathView';
 
@@ -94,76 +91,49 @@ export function TheoryModal({ isOpen, onClose }) {
             </div>
           </section>
 
-          {/* Section 3: High-Pass Filters */}
-          <section className="theory-section">
-            <div className="section-title high-pass-color">
-              <Zap size={16} />
-              <h4>3. High-Pass Filters (Sharpening &amp; Edge Detection)</h4>
-            </div>
-            <p>
-              High-pass filters suppress low-frequency background illumination and accentuate rapid 
-              intensity transitions (edges, contours, object boundaries, fine textures).
-            </p>
-            <div className="theory-cards-grid">
-              <div className="theory-card">
-                <h5>Sobel &amp; Prewitt (1st Derivative)</h5>
-                <p>
-                  Computes the spatial gradient vector:
-                  <span className="mono"> ∇f = [Gx, Gy]ᵀ</span>. The gradient magnitude 
-                  <span className="mono"> M = √(Gx² + Gy²)</span> detects edge intensity, while 
-                  the angle indicates edge orientation.
-                </p>
-              </div>
-              <div className="theory-card">
-                <h5>Laplacian (2nd Derivative)</h5>
-                <p>
-                  Isotropic operator: <span className="mono"> ∇²f = ∂²f/∂x² + ∂²f/∂y²</span>. 
-                  Produces zero in smooth areas, positive/negative response across edges, and 
-                  identifies precise edge locations via <em>zero-crossings</em>.
-                </p>
-              </div>
-              <div className="theory-card">
-                <h5>High-Boost / Unsharp Masking</h5>
-                <p>
-                  Subtracts a smoothed version of the image to obtain a crisp edge mask:
-                  <span className="mono"> f_hb = f + k·(f - f_blur)</span>. When 
-                  <span className="mono">k=1</span>, it is classic unsharp masking; when 
-                  <span className="mono">k &gt; 1</span>, it is high-boost filtering.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Section 4: Canny Edge Detection */}
+          {/* Section 3: Edge Detection (1st Derivative Gradients) */}
           <section className="theory-section">
             <div className="section-title edge-color">
               <Sparkles size={16} />
-              <h4>4. Canny Optimal Edge Detector (Multi-Stage)</h4>
+              <h4>3. Edge Detection (Sobel &amp; Prewitt 1st Derivative Gradients)</h4>
             </div>
             <p>
-              Developed by John F. Canny in 1986, this algorithm satisfies three fundamental criteria: low error rate, precise localization, and single edge response.
+              Edge detectors calculate spatial intensity gradients to localize boundaries between distinct 
+              image regions. Using orthogonal derivative kernels, they capture the magnitude and direction 
+              of brightness variations.
             </p>
             <div className="theory-cards-grid">
               <div className="theory-card">
-                <h5>1. Gaussian Smoothing</h5>
-                <p>Convolves with a 2D Gaussian kernel to suppress camera noise without excessive edge degradation.</p>
+                <h5>Sobel Gradient Operator</h5>
+                <p>
+                  Combines spatial differentiation with orthogonal Gaussian smoothing:
+                  <span className="mono"> Gx = [[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]]</span>. 
+                  The center weight of 2 provides superior noise suppression along diagonal and perpendicular edges.
+                </p>
               </div>
               <div className="theory-card">
-                <h5>2. Gradient &amp; Non-Maximum Suppression</h5>
-                <p>Computes gradient vector magnitude and orientation, then thins candidate edges to strict 1-pixel widths.</p>
+                <h5>Prewitt Gradient Operator</h5>
+                <p>
+                  Uses uniform box weighting across the orthogonal axis:
+                  <span className="mono"> Gx = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]</span>. 
+                  Computationally lightweight and highly effective for clean, low-noise digital images.
+                </p>
               </div>
               <div className="theory-card">
-                <h5>3. Hysteresis Double Thresholding</h5>
-                <p>Uses dual thresholds (T_high and T_low). Preserves continuous contours by linking weak edges to strong edges.</p>
+                <h5>Gradient Magnitude &amp; Direction</h5>
+                <p>
+                  Total magnitude <span className="mono">M = √(Gx² + Gy²)</span> reveals edge strength, 
+                  while direction <span className="mono">θ = arctan(Gy / Gx)</span> specifies the normal vector to the edge boundary.
+                </p>
               </div>
             </div>
           </section>
 
-          {/* Section 5: Harris Corner Detection */}
+          {/* Section 4: Harris Corner Detection */}
           <section className="theory-section">
             <div className="section-title corner-color">
               <Cpu size={16} />
-              <h4>5. Harris Corner &amp; Feature Keypoint Detector</h4>
+              <h4>4. Harris Corner &amp; Feature Keypoint Detector</h4>
             </div>
             <p>
               Developed by Chris Harris &amp; Mike Stephens in 1988. Finds distinctive 2D points with large intensity gradients in all spatial directions.

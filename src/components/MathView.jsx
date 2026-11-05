@@ -59,40 +59,6 @@ const MATHML_MAP = {
       <mo stretchy="false">{"}"}</mo>
     </math>
   ),
-  laplacian_4: (
-    <math display="inline">
-      <msup><mo>&nabla;</mo><mn>2</mn></msup><mi>f</mi>
-      <mo>=</mo>
-      <mfrac>
-        <mrow><msup><mo>&part;</mo><mn>2</mn></msup><mi>f</mi></mrow>
-        <mrow><mo>&part;</mo><msup><mi>x</mi><mn>2</mn></msup></mrow>
-      </mfrac>
-      <mo>+</mo>
-      <mfrac>
-        <mrow><msup><mo>&part;</mo><mn>2</mn></msup><mi>f</mi></mrow>
-        <mrow><mo>&part;</mo><msup><mi>y</mi><mn>2</mn></msup></mrow>
-      </mfrac>
-    </math>
-  ),
-  laplacian_8: (
-    <math display="inline">
-      <msubsup><mo>&nabla;</mo><mn>8</mn><mn>2</mn></msubsup><mi>f</mi>
-      <mo>=</mo>
-      <munder><mo>&sum;</mo><mrow><mn>8</mn><mtext>-neighbors</mtext></mrow></munder>
-      <mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>+</mo><mi>s</mi><mo>,</mo><mi>y</mi><mo>+</mo><mi>t</mi><mo stretchy="false">)</mo>
-      <mo>&minus;</mo>
-      <mn>8</mn><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-    </math>
-  ),
-  laplacian_sharpen: (
-    <math display="inline">
-      <mi>g</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-      <mo>=</mo>
-      <mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-      <mo>&minus;</mo>
-      <msup><mo>&nabla;</mo><mn>2</mn></msup><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-    </math>
-  ),
   sobel_gradient: (
     <math display="inline">
       <mi>M</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
@@ -112,37 +78,6 @@ const MATHML_MAP = {
       <msqrt>
         <mrow><msubsup><mi>G</mi><mi>x</mi><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>G</mi><mi>y</mi><mn>2</mn></msubsup></mrow>
       </msqrt>
-    </math>
-  ),
-  high_boost: (
-    <math display="inline">
-      <msub><mi>f</mi><mtext>hb</mtext></msub><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-      <mo>=</mo>
-      <mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-      <mo>+</mo>
-      <mi>k</mi><mo>&sdot;</mo>
-      <mo stretchy="false">[</mo>
-      <mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo><mo>&minus;</mo><mover><mi>f</mi><mo>&macr;</mo></mover><mo stretchy="false">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false">)</mo>
-      <mo stretchy="false">]</mo>
-    </math>
-  ),
-  canny_edge: (
-    <math display="inline">
-      <mtext>Canny</mtext>
-      <mo>=</mo>
-      <mtext>Hysteresis</mtext>
-      <mo stretchy="false">(</mo>
-      <mtext>NMS</mtext>
-      <mo stretchy="false">(</mo>
-      <mo>&#8741;</mo><mo>&nabla;</mo><mo stretchy="false">(</mo><msub><mi>G</mi><mi>&sigma;</mi></msub><mo>&lowast;</mo><mi>I</mi><mo stretchy="false">)</mo><mo>&#8741;</mo>
-      <mo stretchy="false">)</mo>
-      <mo>,</mo>
-      <mspace width="0.4em"/>
-      <msub><mi>T</mi><mtext>low</mtext></msub>
-      <mo>,</mo>
-      <mspace width="0.4em"/>
-      <msub><mi>T</mi><mtext>high</mtext></msub>
-      <mo stretchy="false">)</mo>
     </math>
   ),
   harris_corner: (
