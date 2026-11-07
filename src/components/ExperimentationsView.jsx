@@ -46,10 +46,9 @@ export function ExperimentationsView({ onBack }) {
   const [liveExpCResult, setLiveExpCResult] = useState(null);
   const [liveNmsRadius, setLiveNmsRadius] = useState(2);
   const [liveExpDResult, setLiveExpDResult] = useState(null);
-  const [livePerturbType, setLivePerturbType] = useState('noise');
-  const [liveExpEResult, setLiveExpEResult] = useState(null);
+  const [liveExpE, setLiveExpE] = useState({}); // { [variantId]: { inputUrl, finalUrl, cornersCount, rMax, candidatesCount } }
 
-  // Load test images into cache on mount
+  // Load test images into cache on mount and immediately compute live overlay for Experiment A
   useEffect(() => {
     TEST_IMAGES.forEach((t) => {
       setLoadingStatus((prev) => ({ ...prev, [t.id]: 'loading' }));
@@ -57,6 +56,21 @@ export function ExperimentationsView({ onBack }) {
         .then((imgData) => {
           setLoadedImages((prev) => ({ ...prev, [t.id]: imgData }));
           setLoadingStatus((prev) => ({ ...prev, [t.id]: 'ready' }));
+
+          // Automatically compute and show live overlay by default for Experiment A
+          const res = executeHarrisPipeline(imgData, {
+            sigma: 1.2,
+            k: 0.04,
+            thresholdRatio: 0.01,
+            nmsRadius: 2,
+            markerStyle: 'target',
+            markerColor: 'red'
+          });
+          const finalUrl = imageDataToDataUrl(res.finalImg);
+          setLiveExpA((prev) => ({
+            ...prev,
+            [t.id]: { ...res, finalUrl }
+          }));
         })
         .catch((err) => {
           console.error(`Failed to load ${t.path}`, err);
@@ -150,12 +164,50 @@ export function ExperimentationsView({ onBack }) {
     });
   };
 
-  // Run live for Experiment E (Perturbations)
-  const handleRunLiveE = (perturbType = livePerturbType) => {
+  // Run all 4 variants for Experiment E (1.jpg baseline, noise, contrast, rotation)
+  const runAllExperimentE = (srcData) => {
+    const variants = [
+      { id: 'original', type: 'none' },
+      { id: 'gaussian_noise', type: 'noise' },
+      { id: 'illumination_contrast', type: 'contrast' },
+      { id: 'rotation_20deg', type: 'rotation' }
+    ];
+
+    const results = {};
+    for (const v of variants) {
+      const inputData = applyPerturbation(srcData, v.type);
+      const inputUrl = imageDataToDataUrl(inputData);
+      const pipelineRes = executeHarrisPipeline(inputData, {
+        sigma: 1.2,
+        k: 0.04,
+        thresholdRatio: 0.01,
+        nmsRadius: 2,
+        markerStyle: 'target',
+        markerColor: 'red'
+      });
+      const finalUrl = imageDataToDataUrl(pipelineRes.finalImg);
+      results[v.id] = {
+        inputUrl,
+        finalUrl,
+        ...pipelineRes
+      };
+    }
+    setLiveExpE(results);
+  };
+
+  // Re-run single variant in Experiment E
+  const handleRerunVariantE = (variantId) => {
     const srcData = loadedImages[selectedExpImage];
     if (!srcData) return;
-    const perturbedData = applyPerturbation(srcData, perturbType);
-    const res = executeHarrisPipeline(perturbedData, {
+    const typeMap = {
+      original: 'none',
+      gaussian_noise: 'noise',
+      illumination_contrast: 'contrast',
+      rotation_20deg: 'rotation'
+    };
+    const inputData = applyPerturbation(srcData, typeMap[variantId] || 'none');
+    const inputUrl = imageDataToDataUrl(inputData);
+    const pipelineRes = executeHarrisPipeline(inputData, {
       sigma: 1.2,
       k: 0.04,
       thresholdRatio: 0.01,
@@ -163,12 +215,15 @@ export function ExperimentationsView({ onBack }) {
       markerStyle: 'target',
       markerColor: 'red'
     });
-    setLiveExpEResult({
-      ...res,
-      perturbType,
-      perturbedUrl: imageDataToDataUrl(perturbedData),
-      finalUrl: imageDataToDataUrl(res.finalImg)
-    });
+    const finalUrl = imageDataToDataUrl(pipelineRes.finalImg);
+    setLiveExpE((prev) => ({
+      ...prev,
+      [variantId]: {
+        inputUrl,
+        finalUrl,
+        ...pipelineRes
+      }
+    }));
   };
 
   // Auto-run baseline when selected image changes
@@ -177,7 +232,7 @@ export function ExperimentationsView({ onBack }) {
       handleRunLiveB(liveTau);
       handleRunLiveC(liveSigma);
       handleRunLiveD(liveNmsRadius);
-      handleRunLiveE(livePerturbType);
+      runAllExperimentE(loadedImages[selectedExpImage]);
     }
   }, [selectedExpImage, loadedImages]);
 
@@ -306,7 +361,7 @@ export function ExperimentationsView({ onBack }) {
 
                     <div className="eval-view-item">
                       <div className="view-header">
-                        <span className="highlight-tag">Harris Detected Corners</span>
+                        <span className="highlight-tag">Harris Detected Corners (Live Overlay)</span>
                         <span className="mono corners-badge">
                           {live ? live.cornersCount : img.corners} corners
                         </span>
@@ -316,12 +371,9 @@ export function ExperimentationsView({ onBack }) {
                           <img src={live.finalUrl} alt={`Corners ${img.id}`} className="eval-rendered-img" />
                         ) : (
                           <div className="preview-placeholder">
-                            <img src={img.path} alt={`Base ${img.id}`} className="eval-rendered-img" />
+                            <img src={img.path} alt={`Base ${img.id}`} className="eval-rendered-img dimmed" />
                             <div className="precomputed-overlay-note">
-                              <span>Standard Detection ({img.corners} corners)</span>
-                              <button className="btn-small-render" onClick={() => handleRunLiveA(img.id)}>
-                                View Live Overlay
-                              </button>
+                              <span>Generating Live Overlay...</span>
                             </div>
                           </div>
                         )}
@@ -750,37 +802,101 @@ export function ExperimentationsView({ onBack }) {
 
           {/* 4 Variant Cards Grid */}
           <div className="exp-e-grid">
-            {(EXPERIMENT_E_DATA[selectedExpImage] || EXPERIMENT_E_DATA['1.jpg']).map((variant) => (
-              <div key={variant.variantId} className="variant-card">
-                <div className="variant-card-header">
-                  <div>
-                    <h4 className="variant-name">{variant.name}</h4>
-                    <span className="variant-pert mono">{variant.perturbation}</span>
-                  </div>
-                  <span className="variant-repeat mono">{variant.repeatability}</span>
-                </div>
+            {(EXPERIMENT_E_DATA[selectedExpImage] || EXPERIMENT_E_DATA['1.jpg']).map((variant) => {
+              const liveV = liveExpE[variant.variantId];
 
-                <div className="variant-metrics-strip">
-                  <div className="v-metric">
-                    <span className="v-lbl">Corners Detected:</span>
-                    <span className="v-val mono bold">{variant.corners}</span>
+              return (
+                <div key={variant.variantId} className="variant-card">
+                  <div className="variant-card-header">
+                    <div>
+                      <h4 className="variant-name">{variant.name}</h4>
+                      <span className="variant-pert mono">{variant.perturbation}</span>
+                    </div>
+                    <div className="variant-header-actions">
+                      <span className="variant-repeat mono">{variant.repeatability}</span>
+                      <button
+                        type="button"
+                        className="btn-rerun-card"
+                        onClick={() => handleRerunVariantE(variant.variantId)}
+                        title="Re-run live detection on this variant"
+                      >
+                        <RefreshCw size={13} />
+                        <span>Re-run Live</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="v-metric">
-                    <span className="v-lbl">Mean Coordinate Shift:</span>
-                    <span className="v-val mono">{variant.meanDisplacement}</span>
-                  </div>
-                  <div className="v-metric">
-                    <span className="v-lbl">Max Response:</span>
-                    <span className="v-val mono">{variant.rMax}</span>
-                  </div>
-                </div>
 
-                <div className="variant-analysis-text">
-                  <strong>Empirical Behavior: </strong>
-                  <p>{variant.analysis}</p>
+                  {/* Dual Comparison Canvases: Input vs Output */}
+                  <div className="eval-dual-view">
+                    <div className="eval-view-item">
+                      <div className="view-header">
+                        <span>Input Image ({variant.name.replace(/^[0-9]+\.\s*/, '')})</span>
+                        <span className="mono dim-badge">{selectedExpImage}</span>
+                      </div>
+                      <div className="eval-img-container">
+                        {liveV?.inputUrl ? (
+                          <img src={liveV.inputUrl} alt={`Input ${variant.name}`} className="eval-rendered-img" />
+                        ) : (
+                          <img
+                            src={TEST_IMAGES.find((t) => t.id === selectedExpImage)?.path || './testImages/1.jpg'}
+                            alt={`Input ${variant.name}`}
+                            className="eval-rendered-img"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="eval-view-item">
+                      <div className="view-header">
+                        <span className="highlight-tag">Harris Detected Corners</span>
+                        <span className="mono corners-badge">
+                          {liveV ? liveV.cornersCount : variant.corners} corners
+                        </span>
+                      </div>
+                      <div className="eval-img-container">
+                        {liveV?.finalUrl ? (
+                          <img src={liveV.finalUrl} alt={`Output ${variant.name}`} className="eval-rendered-img" />
+                        ) : (
+                          <div className="preview-placeholder">
+                            <span className="dim-badge">Computing Corners...</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Quantitative Metric Chips */}
+                  <div className="eval-metrics-row">
+                    <div className="metric-chip">
+                      <span className="chip-label">Corners Detected</span>
+                      <span className="chip-val mono highlight-count">
+                        {liveV ? liveV.cornersCount : variant.corners}
+                      </span>
+                    </div>
+                    <div className="metric-chip">
+                      <span className="chip-label">Mean Coordinate Shift</span>
+                      <span className="chip-val mono">{variant.meanDisplacement}</span>
+                    </div>
+                    <div className="metric-chip">
+                      <span className="chip-label">Max Response (R_max)</span>
+                      <span className="chip-val mono">
+                        {liveV ? liveV.rMax.toExponential(2) : variant.rMax}
+                      </span>
+                    </div>
+                    <div className="metric-chip">
+                      <span className="chip-label">Repeatability</span>
+                      <span className="chip-val mono">{variant.repeatability}</span>
+                    </div>
+                  </div>
+
+                  {/* Analysis Box */}
+                  <div className="variant-analysis-text">
+                    <strong>Empirical Behavior: </strong>
+                    <p>{variant.analysis}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Invariance Discussion Box */}

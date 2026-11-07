@@ -151,13 +151,22 @@ export function applyPerturbation(srcData, type = 'noise') {
   const ctx = canvas.getContext('2d');
   ctx.putImageData(srcData, 0, 0);
 
+  if (type === 'none') {
+    return srcData;
+  }
+
   if (type === 'noise') {
     const outData = ctx.getImageData(0, 0, width, height);
     const d = outData.data;
-    // Additive Gaussian noise (sigma = 15) using Box-Muller transform
+    // Additive Gaussian noise (sigma = 15) using seeded PRNG for consistent benchmark results
+    let s = 42;
+    const rng = () => {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
+    };
     for (let i = 0; i < d.length; i += 4) {
-      const u1 = Math.max(0.0001, Math.random());
-      const u2 = Math.random();
+      const u1 = Math.max(0.0001, rng());
+      const u2 = rng();
       const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
       const noisy = Math.min(255, Math.max(0, Math.round(d[i] + z0 * 15)));
       d[i] = noisy;
