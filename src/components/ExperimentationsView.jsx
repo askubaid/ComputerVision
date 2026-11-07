@@ -181,6 +181,14 @@ export function ExperimentationsView({ onBack }) {
     }
   }, [selectedExpImage, loadedImages]);
 
+  // Smooth scroll helper for sticky nav pills
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="experiment-dashboard">
       {/* Top Banner Navigation & Academic Breadcrumb */}
@@ -215,11 +223,11 @@ export function ExperimentationsView({ onBack }) {
         <div className="sticky-nav-content">
           <span className="jump-label">Jump to Experiment:</span>
           <div className="jump-buttons">
-            <a href="#exp-a" className="jump-pill">A: Image Selection</a>
-            <a href="#exp-b" className="jump-pill">B: Detection Threshold</a>
-            <a href="#exp-c" className="jump-pill">C: Gaussian Scale (σ)</a>
-            <a href="#exp-d" className="jump-pill">D: Non-Maximum Suppression</a>
-            <a href="#exp-e" className="jump-pill">E: Robustness &amp; Invariance</a>
+            <button type="button" onClick={() => scrollToSection('exp-a')} className="jump-pill">A: Image Selection</button>
+            <button type="button" onClick={() => scrollToSection('exp-b')} className="jump-pill">B: Detection Threshold</button>
+            <button type="button" onClick={() => scrollToSection('exp-c')} className="jump-pill">C: Gaussian Scale (σ)</button>
+            <button type="button" onClick={() => scrollToSection('exp-d')} className="jump-pill">D: Non-Maximum Suppression</button>
+            <button type="button" onClick={() => scrollToSection('exp-e')} className="jump-pill">E: Robustness &amp; Invariance</button>
           </div>
 
           <div className="image-selector-wrap">
@@ -843,3 +851,4 @@ export function ExperimentationsView({ onBack }) {
 }
 
 export default ExperimentationsView;
+

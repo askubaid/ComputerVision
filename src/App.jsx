@@ -260,7 +260,7 @@ export function App() {
   const kernelDetails = getCurrentKernelDetails();
 
   return (
-    <div className="spatial-app">
+    <div className={`spatial-app ${currentView === 'experiments' ? 'experiments-mode' : ''}`}>
       {/* Top Academic Title Bar */}
       <Header 
         activeFilter={activeFilter} 
