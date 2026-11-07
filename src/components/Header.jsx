@@ -1,7 +1,8 @@
 import React from 'react';
 import istLogo from '../../IST.jpg';
+import { Activity, ArrowLeft } from 'lucide-react';
 
-export function Header({ activeFilter = {} }) {
+export function Header({ activeFilter = {}, currentView = 'studio', onToggleView }) {
   return (
     <header className="app-header glass-panel">
       <div className="header-brand">
@@ -34,6 +35,31 @@ export function Header({ activeFilter = {} }) {
           </div>
         </div>
       </div>
+
+      <div className="header-nav-actions">
+        {currentView === 'studio' ? (
+          <button
+            className="btn-header-nav-experiment"
+            onClick={() => onToggleView && onToggleView('experiments')}
+            title="Open 5-Experiment Evaluation Dashboard (A, B, C, D, E)"
+          >
+            <Activity size={16} className="btn-icon" />
+            <span className="btn-text">Experimental Evaluations</span>
+            <span className="btn-hot-badge">5 Experiments</span>
+          </button>
+        ) : (
+          <button
+            className="btn-header-nav-studio"
+            onClick={() => onToggleView && onToggleView('studio')}
+            title="Return to interactive Studio Playground"
+          >
+            <ArrowLeft size={16} className="btn-icon" />
+            <span className="btn-text">Studio Playground</span>
+          </button>
+        )}
+      </div>
     </header>
   );
 }
+
+export default Header;

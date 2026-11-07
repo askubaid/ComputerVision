@@ -7,6 +7,7 @@ import { ImageViewport } from './components/ImageViewport';
 import { HistogramPanel } from './components/HistogramPanel';
 import { TheoryModal } from './components/TheoryModal';
 import { HarrisPipelineView } from './components/HarrisPipelineView';
+import { ExperimentationsView } from './components/ExperimentationsView';
 
 import { 
   STUDIO_TABS,
@@ -26,6 +27,9 @@ import {
 import './App.css';
 
 export function App() {
+  // Top-Level View State ('studio' | 'experiments')
+  const [currentView, setCurrentView] = useState('studio');
+
   // Navigation Tab State (Filters | Edge Detection | Corner Detection)
   const [activeTab, setActiveTab] = useState(STUDIO_TABS.FILTERS);
   const [selectedFilterId, setSelectedFilterId] = useState('box_blur');
@@ -258,101 +262,109 @@ export function App() {
   return (
     <div className="spatial-app">
       {/* Top Academic Title Bar */}
-      <Header activeFilter={activeFilter} />
+      <Header 
+        activeFilter={activeFilter} 
+        currentView={currentView}
+        onToggleView={setCurrentView}
+      />
 
-      {/* Main Studio Body */}
-      <main className="studio-layout">
-        {/* Left Column: Filter Presets & Dynamic Sliders */}
-        <aside className="studio-sidebar-left">
-          <FilterSelector 
-            activeTab={activeTab}
-            onTabChange={(tab) => {
-              setActiveTab(tab);
-              setIsCustomActive(false);
-            }}
-            selectedFilterId={selectedFilterId}
-            onSelectFilter={(id) => {
-              setSelectedFilterId(id);
-              setIsCustomActive(false);
-              const found = FILTER_PRESETS.find(f => f.id === id);
-              if (found) {
-                if (found.defaultKernelSize) {
-                  setFilterParams(p => ({ ...p, kernelSize: found.defaultKernelSize }));
+      {currentView === 'experiments' ? (
+        <ExperimentationsView onBack={() => setCurrentView('studio')} />
+      ) : (
+        /* Main Studio Body */
+        <main className="studio-layout">
+          {/* Left Column: Filter Presets & Dynamic Sliders */}
+          <aside className="studio-sidebar-left">
+            <FilterSelector 
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                setActiveTab(tab);
+                setIsCustomActive(false);
+              }}
+              selectedFilterId={selectedFilterId}
+              onSelectFilter={(id) => {
+                setSelectedFilterId(id);
+                setIsCustomActive(false);
+                const found = FILTER_PRESETS.find(f => f.id === id);
+                if (found) {
+                  if (found.defaultKernelSize) {
+                    setFilterParams(p => ({ ...p, kernelSize: found.defaultKernelSize }));
+                  }
+                  if (found.defaultSigma) {
+                    setFilterParams(p => ({ ...p, sigma: found.defaultSigma }));
+                  }
+                  if (found.defaultHarrisK) {
+                    setFilterParams(p => ({ ...p, harrisK: found.defaultHarrisK }));
+                  }
+                  if (found.defaultHarrisSensitivity) {
+                    setFilterParams(p => ({ ...p, harrisSensitivity: found.defaultHarrisSensitivity }));
+                  }
                 }
-                if (found.defaultSigma) {
-                  setFilterParams(p => ({ ...p, sigma: found.defaultSigma }));
-                }
-                if (found.defaultHarrisK) {
-                  setFilterParams(p => ({ ...p, harrisK: found.defaultHarrisK }));
-                }
-                if (found.defaultHarrisSensitivity) {
-                  setFilterParams(p => ({ ...p, harrisSensitivity: found.defaultHarrisSensitivity }));
-                }
-              }
-            }}
-            isCustomActive={isCustomActive}
-            onSelectCustom={() => {
-              setIsCustomActive(true);
-              setActiveTab(STUDIO_TABS.FILTERS);
-            }}
-          />
-
-          {activeTab !== STUDIO_TABS.CORNER_DETECTION && (
-            <FilterControls 
-              filter={activeFilter}
-              params={filterParams}
-              onParamChange={handleParamChange}
+              }}
               isCustomActive={isCustomActive}
-              cornerCount={cornerCount}
+              onSelectCustom={() => {
+                setIsCustomActive(true);
+                setActiveTab(STUDIO_TABS.FILTERS);
+              }}
             />
-          )}
-        </aside>
 
-        {/* Tab 3: Harris 5-Stage Interactive Pipeline */}
-        {activeTab === STUDIO_TABS.CORNER_DETECTION ? (
-          <section className="studio-harris-stage">
-            <HarrisPipelineView 
-              originalImageData={baseImageData}
-              onImageUpload={handleUploadImage}
-              onReset={handleReset}
-            />
-          </section>
-        ) : (
-          <>
-            {/* Center Column: Viewport Stage (Tabs 1 & 2 Remain Intact) */}
-            <section className="studio-viewport-stage">
-              <ImageViewport 
-                originalImageData={originalImageData}
-                filteredImageData={filteredImageData}
-                processTimeMs={processTimeMs}
-                onImageDrop={handleUploadImage}
+            {activeTab !== STUDIO_TABS.CORNER_DETECTION && (
+              <FilterControls 
+                filter={activeFilter}
+                params={filterParams}
+                onParamChange={handleParamChange}
+                isCustomActive={isCustomActive}
+                cornerCount={cornerCount}
+              />
+            )}
+          </aside>
+
+          {/* Tab 3: Harris 5-Stage Interactive Pipeline */}
+          {activeTab === STUDIO_TABS.CORNER_DETECTION ? (
+            <section className="studio-harris-stage">
+              <HarrisPipelineView 
+                originalImageData={baseImageData}
+                onImageUpload={handleUploadImage}
                 onReset={handleReset}
-                onDownload={handleDownload}
-                onOpenTheory={() => setIsTheoryOpen(true)}
               />
             </section>
+          ) : (
+            <>
+              {/* Center Column: Viewport Stage (Tabs 1 & 2 Remain Intact) */}
+              <section className="studio-viewport-stage">
+                <ImageViewport 
+                  originalImageData={originalImageData}
+                  filteredImageData={filteredImageData}
+                  processTimeMs={processTimeMs}
+                  onImageDrop={handleUploadImage}
+                  onReset={handleReset}
+                  onDownload={handleDownload}
+                  onOpenTheory={() => setIsTheoryOpen(true)}
+                />
+              </section>
 
-            {/* Right Column: Kernel Matrix & Frequency Histogram */}
-            <aside className="studio-sidebar-right">
-              <KernelVisualizer 
-                filter={activeFilter}
-                kernel={kernelDetails.kernel}
-                divisor={kernelDetails.divisor}
-                bias={kernelDetails.bias}
-                isCustom={isCustomActive}
-                onCustomKernelChange={setCustomKernel}
-                onCustomDivisorChange={setCustomDivisor}
-                onCustomBiasChange={setCustomBias}
-              />
+              {/* Right Column: Kernel Matrix & Frequency Histogram */}
+              <aside className="studio-sidebar-right">
+                <KernelVisualizer 
+                  filter={activeFilter}
+                  kernel={kernelDetails.kernel}
+                  divisor={kernelDetails.divisor}
+                  bias={kernelDetails.bias}
+                  isCustom={isCustomActive}
+                  onCustomKernelChange={setCustomKernel}
+                  onCustomDivisorChange={setCustomDivisor}
+                  onCustomBiasChange={setCustomBias}
+                />
 
-              <HistogramPanel 
-                originalImageData={originalImageData}
-                filteredImageData={filteredImageData}
-              />
-            </aside>
-          </>
-        )}
-      </main>
+                <HistogramPanel 
+                  originalImageData={originalImageData}
+                  filteredImageData={filteredImageData}
+                />
+              </aside>
+            </>
+          )}
+        </main>
+      )}
 
       {/* DIP Education & Theory Modal */}
       <TheoryModal 

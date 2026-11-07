@@ -167,6 +167,7 @@ where $M$ is the local **Structure Tensor (Second Moment Matrix)**.
   $$
 
   where:
+
   $$
   \det(M) = \langle I_x^2 \rangle \langle I_y^2 \rangle - \langle I_x I_y \rangle^2
   $$
@@ -185,6 +186,7 @@ where $M$ is the local **Structure Tensor (Second Moment Matrix)**.
 #### Stage 4: Thresholding & Candidate Keypoint Clusters
 
 - An adaptive threshold $T$ is applied to suppress flat regions, edges, and sensor noise:
+
   $$
   T = \tau \cdot \max_{(x,y)} R(x,y)
   $$
